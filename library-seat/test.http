@@ -1,0 +1,43 @@
+### 0. 登录（不拦截，自动把 token 存到全局变量）
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+> {%
+    client.global.set("token", response.body.data.token);
+%}
+
+### 1. 阅览室列表
+GET http://localhost:8080/rooms
+Authorization: {{token}}
+
+### 2. 时段列表
+GET http://localhost:8080/slots
+Authorization: {{token}}
+
+### 3. 座位列表（1号阅览室 + 1号时段，返回 10 个座位）
+GET http://localhost:8080/seats?roomId=1&slotId=1
+Authorization: {{token}}
+
+### 4. 预约座位（返回 "预约成功"）
+POST http://localhost:8080/reserve
+Authorization: {{token}}
+Content-Type: application/json
+
+{
+  "seatId": 1,
+  "roomId": 1,
+  "slotId": 1
+}
+
+### 5.【可选】我的预约
+GET http://localhost:8080/reservations
+Authorization: {{token}}
+
+### 6.【可选】公告列表
+GET http://localhost:8080/notices
+Authorization: {{token}}

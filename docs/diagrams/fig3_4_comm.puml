@@ -1,0 +1,30 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 15
+skinparam dpi 200
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam objectBorderColor #37474F
+skinparam objectBackgroundColor #FBFCFE
+skinparam objectAttributeFontSize 13
+
+title 座位预约用例协作图
+
+object "读者 : 用户" as U
+object "选座预约页 : Home.vue" as V
+object "request.js : Axios" as R
+object "ApiController : 控制器" as C
+object "SeatService : 座位服务" as S
+object "ReservationService : 预约服务" as RS
+object "ReservationMapper : 数据访问" as M
+
+U --> V : 1: 选择阅览室、日期、时段\n4: 点击座位并确认
+V --> R : 2: getSeats(params)\n5: reserve(data)
+R --> C : 3: GET /api/seats\n6: POST /api/reserve
+C --> S : 7: seats(roomId, date, slotId)
+C --> RS : 8: reserve(userId, seatId, slotId, date)
+S --> M : 9: findNormalByRoom()\n10: countSeatReserved()
+RS --> M : 11: countActive()\n12: insert(reservation)
+
+@enduml

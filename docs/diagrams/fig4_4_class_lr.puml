@@ -1,0 +1,92 @@
+﻿@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 14
+skinparam dpi 200
+skinparam shadowing false
+skinparam nodesep 28
+skinparam ranksep 34
+skinparam ArrowColor #444444
+skinparam classBorderColor #37474F
+skinparam classBackgroundColor #FFFFFF
+skinparam classAttributeFontSize 13
+skinparam classHeaderBackgroundColor #F3F6FA
+hide empty members
+left to right direction
+
+package "边界类（前端页面）" {
+  class "MyReservations.vue\n我的预约页面" as Page <<边界类>> {
+    - list : List<ReservationVO>
+    - loading : Boolean
+    - statusMap : Object
+    + loadList() : void
+    + onCheckin(row) : void
+    + onCheckout(row) : void
+    + onCancel(row) : void
+  }
+  class "api/index.js\n接口封装" as API <<边界类>> {
+    + getMyReservations() : Promise
+    + cancelReservation(id) : Promise
+    + checkin(id) : Promise
+    + checkout(id) : Promise
+  }
+}
+
+package "控制类（后端服务）" {
+  class "ApiController" as Ctl <<控制类>> {
+    + myReservations(request) : Result
+    + cancel(id, request) : Result
+    + checkin(id, request) : Result
+    + checkout(id, request) : Result
+  }
+  class "ReservationService" as RS <<控制类>> {
+    + myReserves(userId) : List<ReservationVO>
+    + cancel(id, userId) : String
+    + checkIn(id, userId) : String
+    + checkOut(id, userId) : String
+  }
+}
+
+package "实体类与数据访问" {
+  class "ReservationVO" as VO <<实体类>> {
+    - id : Integer
+    - reserveNo : String
+    - seatNo : String
+    - roomName : String
+    - slotName : String
+    - reserveDate : LocalDate
+    - status : Integer
+    - checkInTime : LocalDateTime
+    - checkOutTime : LocalDateTime
+  }
+  class "Reservation" as Res <<实体类>> {
+    - id : Integer
+    - status : Integer
+    - cancelTime : LocalDateTime
+    - checkInTime : LocalDateTime
+    - checkOutTime : LocalDateTime
+  }
+  class "ReservationMapper" as RM <<持久化类>> {
+    + findVOByUser(userId) : List<ReservationVO>
+    + cancel(id, userId) : int
+    + checkIn(id, userId) : int
+    + checkOut(id, userId) : int
+  }
+}
+
+class "Result<T>" as Result <<框架类>> {
+  + success(data) : Result
+  + error(msg) : Result
+}
+
+Page --> API : 调用
+API --> Ctl : HTTP/JSON
+Ctl --> RS : 业务处理
+RS --> RM : 状态更新
+RM ..> VO : 组装返回
+RM ..> Res : 读写实体
+Ctl ..> Result : 封装响应
+
+@enduml
+
+

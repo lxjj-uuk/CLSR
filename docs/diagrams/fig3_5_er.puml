@@ -1,0 +1,110 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 15
+skinparam dpi 200
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam entityBorderColor #37474F
+skinparam entityBackgroundColor #FBFCFE
+
+title 系统数据库概念模型（ER 图）
+
+entity "用户 user" as user {
+  * id : int <<PK>>
+  --
+  username : varchar(32)
+  password : varchar(64)
+  name : varchar(32)
+  role : tinyint
+  phone : varchar(20)
+  status : tinyint
+}
+
+entity "阅览室 reading_room" as room {
+  * id : int <<PK>>
+  --
+  room_name : varchar(64)
+  floor : varchar(16)
+  capacity : int
+  open_time : time
+  close_time : time
+  status : tinyint
+}
+
+entity "座位 seat" as seat {
+  * id : int <<PK>>
+  --
+  o room_id : int <<FK>>
+  seat_no : varchar(16)
+  seat_row : int
+  seat_col : int
+  zone : tinyint
+  has_power : tinyint
+  status : tinyint
+}
+
+entity "时段 time_slot" as slot {
+  * id : int <<PK>>
+  --
+  slot_name : varchar(32)
+  start_time : time
+  end_time : time
+  status : tinyint
+}
+
+entity "预约 reservation" as res {
+  * id : int <<PK>>
+  --
+  reserve_no : varchar(32)
+  o user_id : int <<FK>>
+  o seat_id : int <<FK>>
+  o room_id : int <<FK>>
+  o slot_id : int <<FK>>
+  reserve_date : date
+  status : tinyint
+  check_in_time : datetime
+  check_out_time : datetime
+}
+
+entity "公告 notice" as notice {
+  * id : int <<PK>>
+  --
+  o admin_id : int <<FK>>
+  title : varchar(128)
+  content : text
+  view_count : int
+  status : tinyint
+  publish_time : datetime
+}
+
+entity "违规记录 violation" as vio {
+  * id : int <<PK>>
+  --
+  o user_id : int <<FK>>
+  o reservation_id : int <<FK>>
+  type : tinyint
+  description : varchar(255)
+}
+
+entity "黑名单 blacklist" as black {
+  * id : int <<PK>>
+  --
+  o user_id : int <<FK>>
+  reason : varchar(255)
+  start_time : datetime
+  end_time : datetime
+  status : tinyint
+}
+
+user ||--o{ res : 发起
+room ||--o{ seat : 包含
+room ||--o{ res : 属于
+seat ||--o{ res : 被预约
+slot ||--o{ res : 限定
+user ||--o{ vio : 产生
+res ||--o| vio : 触发
+user ||--o{ black : 列入
+user ||--o{ notice : 发布
+
+@enduml

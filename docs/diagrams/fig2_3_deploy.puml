@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 14
+skinparam dpi 220
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam nodeBorderColor #37474F
+skinparam nodeBackgroundColor #FFFFFF
+skinparam databaseBackgroundColor #FFFFFF
+skinparam artifactBackgroundColor #F7F9FC
+
+node "读者客户端\n（PC 浏览器 Chrome / Edge）" as client {
+  artifact "前端单页应用\nVue 3.5 + Vite 5 + Element Plus 2.8\nPinia + Vue Router + Axios" as spa
+}
+
+node "应用服务器\nWindows 11 / JDK 17" as app {
+  artifact "Spring Boot 2.7.18 内嵌 Tomcat\n端口 8080" as boot
+  artifact "业务组件\nController / Service / Mapper" as biz
+}
+
+node "数据库服务器\nMySQL 8.0.33  端口 3306" as dbserver {
+  database "library_seat\nInnoDB / utf8mb4" as db
+}
+
+cloud "校园局域网 / HTTP" as net1
+cloud "JDBC 连接" as net2
+
+spa --> net1
+net1 --> boot
+boot --> biz
+biz --> net2
+net2 --> db
+
+note right of spa
+  浏览器通过 HTTP 访问
+  /api 接口，请求头携带
+  Authorization: Bearer <JWT>
+end note
+
+@enduml

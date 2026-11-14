@@ -1,0 +1,22 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultFontName "Microsoft YaHei"
+skinparam shadowing false
+
+entity "用户 user" as user {
+  * id : int <<PK>>
+  --
+  username : varchar(32)
+  password : varchar(64)
+  role : tinyint
+}
+
+entity "预约 reservation" as res {
+  * id : int <<PK>>
+  --
+  seat_id : int <<FK>>
+  reserve_date : date
+}
+
+user ||--o{ res : 发起
+@enduml

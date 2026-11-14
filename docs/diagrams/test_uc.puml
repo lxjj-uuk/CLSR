@@ -1,0 +1,20 @@
+@startuml
+skinparam backgroundColor white
+skinparam defaultFontName "Microsoft YaHei"
+skinparam shadowing false
+left to right direction
+
+actor "学生 / 教职工" as stu
+actor "自习室管理员" as admin
+
+rectangle "校园图书馆座位预约系统" {
+  usecase "登录系统" as UC1
+  usecase "座位查询与预约" as UC2
+  usecase "我的预约管理" as UC3
+}
+
+stu --> UC1
+stu --> UC2
+stu --> UC3
+admin --> UC1
+@enduml

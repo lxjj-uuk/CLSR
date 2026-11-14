@@ -1,0 +1,108 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 14
+skinparam dpi 200
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam classBorderColor #37474F
+skinparam classBackgroundColor #FFFFFF
+skinparam classAttributeFontSize 13
+skinparam classHeaderBackgroundColor #F3F6FA
+hide empty members
+
+package "边界类（前端页面）" {
+  class "Home.vue\n选座预约页面" as Home <<边界类>> {
+    - rooms : List<ReadingRoom>
+    - slots : List<TimeSlot>
+    - seats : List<SeatVO>
+    - roomId : Integer
+    - slotId : Integer
+    - date : String
+    + querySeats() : void
+    + onSeatClick(seat) : void
+    + seatClass(seat) : String
+  }
+  class "api/index.js\n接口封装" as API <<边界类>> {
+    + getRooms() : Promise
+    + getSlots() : Promise
+    + getSeats(params) : Promise
+    + reserve(data) : Promise
+  }
+}
+
+package "控制类（后端服务）" {
+  class "ApiController" as Ctl <<控制类>> {
+    + rooms() : Result
+    + slots() : Result
+    + seats(roomId, date, slotId) : Result
+    + reserve(body, request) : Result
+  }
+  class "SeatService" as SS <<控制类>> {
+    + rooms() : List<ReadingRoom>
+    + slots() : List<TimeSlot>
+    + seats(roomId, date, slotId) : List<SeatVO>
+  }
+  class "ReservationService" as RS <<控制类>> {
+    + reserve(userId, seatId, slotId, date) : String
+    - generateNo() : String
+  }
+}
+
+package "实体类与数据访问" {
+  class "Seat" as Seat <<实体类>> {
+    - id : Integer
+    - roomId : Integer
+    - seatNo : String
+    - seatRow : Integer
+    - seatCol : Integer
+    - zone : Integer
+    - hasPower : Integer
+    - status : Integer
+  }
+  class "SeatVO" as SeatVO <<实体类>> {
+    - roomName : String
+    - reserved : Boolean
+  }
+  class "Reservation" as Res <<实体类>> {
+    - reserveNo : String
+    - userId : Integer
+    - seatId : Integer
+    - slotId : Integer
+    - reserveDate : LocalDate
+    - status : Integer
+  }
+  class "SeatMapper" as SM <<持久化类>> {
+    + findNormalByRoom(roomId) : List<Seat>
+    + findById(id) : Seat
+  }
+  class "ReservationMapper" as RM <<持久化类>> {
+    + countSeatReserved(seatId, date, slotId) : int
+    + countUserSlot(userId, date, slotId) : int
+    + insert(r : Reservation) : int
+  }
+  class "BlacklistMapper" as BM <<持久化类>> {
+    + countActive(userId) : int
+  }
+}
+
+class "Result<T>" as Result <<框架类>> {
+  + success(data) : Result
+  + error(msg) : Result
+}
+
+Home --> API : 调用
+API --> Ctl : HTTP/JSON
+Ctl --> SS : seats()
+Ctl --> RS : reserve()
+SS --> SM : 查询座位
+SS --> RM : 统计占用
+RS --> RM : 写入预约
+RS --> SM : 校验座位
+RS --> BM : 校验黑名单
+SeatVO --|> Seat : 继承
+SM ..> Seat : 返回
+RM ..> Res : 返回
+Ctl ..> Result : 封装响应
+
+@enduml

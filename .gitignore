@@ -1,0 +1,37 @@
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.yaml
+application-prod.yml
+application-prod.yaml
+*.pem
+*.key
+
+# Java / Maven
+library-seat/target/
+library-seat/.idea/
+library-seat/.vscode/
+library-seat/*.iml
+*.class
+
+# Node / Vite
+library-seat-frontend/node_modules/
+library-seat-frontend/dist/
+library-seat-frontend/.vite/
+library-seat-frontend/*.log
+
+# Report and build work products
+_work/
+*.zip
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+$null
+
+# Keep local build and generated artifacts out of the repository
+library-seat/src/main/resources/application-local.*

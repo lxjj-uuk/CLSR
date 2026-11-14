@@ -1,0 +1,55 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 15
+skinparam dpi 200
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 120
+
+actor "读者" as U
+participant "选座预约页\nHome.vue" as V
+participant "Axios 实例\nrequest.js" as R
+participant "控制器\nApiController" as C
+participant "预约服务\nReservationService" as RS
+participant "数据访问\nReservationMapper" as M
+database "MySQL" as DB
+
+U -> V : 点击座位并确认预约
+V -> R : reserve({seatId, slotId, date})
+R -> C : POST /api/reserve
+activate C
+C -> RS : reserve(userId, seatId, slotId, date)
+activate RS
+RS -> M : countActive(userId)
+M -> DB : 查询生效中的黑名单记录
+DB --> M : 记录数
+alt 用户处于黑名单
+  RS --> C : "你已被列入黑名单，暂不可预约"
+else 座位维修或日期非法
+  RS --> C : "该座位不可用或正在维修"
+else 基础校验通过
+  RS -> M : countSeatReserved(seatId, date, slotId)
+  M -> DB : 座位冲突检测
+  DB --> M : 已预约数量
+  alt 座位已被预约
+    RS --> C : "该座位此时段已被预约"
+  else 用户该时段已有预约
+    RS --> C : "你在该时段已有预约，不能重复预约"
+  else 允许预约
+    RS -> RS : generateNo() 生成预约单号
+    RS -> M : insert(reservation)
+    M -> DB : 新增预约记录
+    DB --> M : 影响行数 1
+    RS --> C : "success"
+  end
+end
+deactivate RS
+C --> R : Result{code=200, data="预约成功"}
+deactivate C
+R --> V : 返回结果
+V --> U : 提示成功并刷新座位图
+
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 13
+skinparam dpi 220
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam usecaseBorderColor #444444
+skinparam usecaseBackgroundColor #FFFFFF
+skinparam rectangleBorderColor #37474F
+skinparam actorBorderColor #444444
+left to right direction
+
+actor "学生 / 教职工\n（读者）" as reader
+actor "自习室管理员" as roomAdmin
+actor "系统管理员" as sysAdmin
+
+rectangle "校园图书馆座位预约系统" {
+  rectangle "读者座位预约子系统" {
+    usecase "用户登录" as UC01
+    usecase "座位查询" as UC02 #FFF2B2
+    usecase "座位预约" as UC03 #FFF2B2
+    usecase "取消预约" as UC04 #FFF2B2
+    usecase "座位签到" as UC05 #FFF2B2
+    usecase "座位签退" as UC06 #FFF2B2
+    usecase "查看我的预约" as UC07 #FFF2B2
+    usecase "浏览馆内公告" as UC08
+  }
+  rectangle "阅览室管理子系统" {
+    usecase "阅览室信息管理" as UC11
+    usecase "座位信息维护" as UC12
+    usecase "预约记录核验" as UC13
+    usecase "违约与黑名单管理" as UC14
+    usecase "公告发布管理" as UC15
+  }
+  rectangle "系统管理子系统" {
+    usecase "用户与权限管理" as UC21
+    usecase "系统参数配置" as UC22
+    usecase "数据备份与日志" as UC23
+  }
+}
+
+reader --> UC01
+reader --> UC02
+reader --> UC03
+reader --> UC04
+reader --> UC05
+reader --> UC06
+reader --> UC07
+reader --> UC08
+
+roomAdmin --> UC01
+roomAdmin --> UC11
+roomAdmin --> UC12
+roomAdmin --> UC13
+roomAdmin --> UC14
+roomAdmin --> UC15
+
+sysAdmin --> UC01
+sysAdmin --> UC21
+sysAdmin --> UC22
+sysAdmin --> UC23
+
+UC03 ..> UC01 : <<include>>
+UC07 ..> UC01 : <<include>>
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName "Microsoft YaHei"
+skinparam defaultFontSize 15
+skinparam dpi 200
+skinparam shadowing false
+skinparam ArrowColor #444444
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 110
+
+actor "读者" as U
+participant "选座预约页\nHome.vue" as V
+participant "Axios 实例\nrequest.js" as R
+participant "JWT 拦截器\nJwtInterceptor" as J
+participant "控制器\nApiController" as C
+participant "座位服务\nSeatService" as S
+participant "数据访问\nSeatMapper" as M
+database "MySQL" as DB
+
+U -> V : 选择阅览室、日期、时段
+V -> R : getSeats(params)
+R -> J : GET /api/seats
+activate J
+J -> J : 校验 JWT 签名与有效期
+J -> C : 校验通过，写入 userId
+deactivate J
+activate C
+C -> S : seats(roomId, date, slotId)
+activate S
+S -> M : findNormalByRoom(roomId)
+M -> DB : 查询阅览室可用座位
+DB --> M : 座位记录集合
+S -> M : countSeatReserved(seatId, date, slotId)
+M -> DB : 统计该时段有效预约数
+DB --> M : 预约数量
+S --> C : List<SeatVO>
+deactivate S
+C --> R : Result{code=200, data=座位列表}
+deactivate C
+R --> V : 返回统一响应
+V --> U : 渲染座位图
+
+@enduml
